@@ -31,7 +31,7 @@ namespace ExperimentalOptimizations.Optimizations
                 _intervalChangedTime = DateTime.Now;
             }
 
-            if (_intervalChanged && (DateTime.Now - _intervalChangedTime).TotalSeconds > 2)
+            if (_intervalChanged && (DateTime.Now - _intervalChangedTime).TotalMilliseconds > 250)
             {
                 if (Pawn_NeedsTracker)
                 {

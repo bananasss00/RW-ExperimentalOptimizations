@@ -32,6 +32,17 @@ namespace ExperimentalOptimizations
             {
                 if (_method == null || (Prefix == null && Postfix == null && Transpiler == null)) return false;
                 Harmony.Patch(_method, Prefix, Postfix, Transpiler);
+#if DEBUG
+                var activePatches = new[]
+                    {
+                        new {name = "prefix", patch = Prefix},
+                        new {name = "postfix", patch = Postfix},
+                        new {name = "transpiler", patch = Transpiler}
+                    }.Where(p => p.patch != null)
+                    .Select(p => $"{p.name}: {p.patch.method.Name}")
+                    .ToArray();
+                Log.Warning($"[PATCH] {_method.DeclaringType.FullName}:{_method.Name} => {String.Join(";", activePatches)}");
+#endif
                 return true;
             }
 
