@@ -34,11 +34,11 @@ namespace ExperimentalOptimizations.Optimizations
 
         public static void Init()
         {
-            var harmonyMethod = typeof(ExperimentalOptimizations).Method(nameof(HealthTick)).ToHarmonyMethod(priority: 999);
+            var harmonyMethod = typeof(HealthTracker).Method(nameof(HealthTick)).ToHarmonyMethod(priority: 999);
             H.PatchInfo patch = typeof(Pawn_HealthTracker).Method(nameof(Pawn_HealthTracker.HealthTick)).Patch(prefix: harmonyMethod, autoPatch: false);
             Patches.Add(patch);
 
-            harmonyMethod = typeof(ExperimentalOptimizations).Method(nameof(CompensateReducedImmunityTick)).ToHarmonyMethod();
+            harmonyMethod = typeof(HealthTracker).Method(nameof(CompensateReducedImmunityTick)).ToHarmonyMethod();
             patch = typeof(ImmunityRecord).Method(nameof(ImmunityRecord.ImmunityTick)).Patch(transpiler: harmonyMethod, autoPatch: false);
             Patches.Add(patch);
         }

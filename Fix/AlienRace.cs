@@ -22,7 +22,7 @@ namespace ExperimentalOptimizations.Fix
                 if (canEverEat != null)
                 {
                     canEverEat.Unpatch(HarmonyPatchType.Postfix, "rimworld.erdelf.alien_race.main");
-                    canEverEat.Patch(postfix: typeof(ExperimentalOptimizations).Method(nameof(CanEverEat)).ToHarmonyMethod());
+                    canEverEat.Patch(postfix: typeof(AlienRace).Method(nameof(CanEverEat)).ToHarmonyMethod());
                     Log.Message($"[ExperimentalOptimizations] AlienRace:CanEverEat patch fixed");
                 }
             }

@@ -34,7 +34,7 @@ namespace ExperimentalOptimizations.Optimizations
 
         public static void Init()
         {
-            var prefix = typeof(ExperimentalOptimizations).Method(nameof(MindStateTick)).ToHarmonyMethod(priority: 999);
+            var prefix = typeof(MindState).Method(nameof(MindStateTick)).ToHarmonyMethod(priority: 999);
             H.PatchInfo patch = typeof(Pawn_MindState).Method(nameof(Pawn_MindState.MindStateTick)).Patch(prefix: prefix, autoPatch: false);
             Patches.Add(patch);
         }

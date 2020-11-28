@@ -69,12 +69,16 @@ namespace ExperimentalOptimizations
                 t.InvokeStaticMethod("Patch");
             }
 
+            // init optimizations
             Optimizations = allTypes.Where(t => t.TryGetAttribute<Optimization>(out _)).ToArray();
-            GetSettings<Settings>();
 
+            GetSettings<Settings>();
             foreach (var optimization in Optimizations)
             {
                 var opt = optimization.TryGetAttribute<Optimization>();
+                // initialize
+                optimization.InvokeStaticMethod("Init");
+                // patch enabled in settings opts.
                 if (opt.optimizationSetting.InvokeStaticMethod<bool>("Enabled"))
                 {
                     optimization.InvokeStaticMethod("Patch");
