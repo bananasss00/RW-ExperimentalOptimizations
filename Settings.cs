@@ -1,4 +1,9 @@
-﻿using UnityEngine;
+﻿using System;
+using System.IO;
+using System.Linq;
+using System.Text;
+using HarmonyLib;
+using UnityEngine;
 using Verse;
 
 namespace ExperimentalOptimizations
@@ -37,6 +42,39 @@ namespace ExperimentalOptimizations
             {
                 var opt = optimization.TryGetAttribute<Optimization>();
                 opt.optimizationSetting.InvokeStaticMethod("DoSettingsWindowContents", l);
+            }
+
+            if (l.ButtonText("DEBUG: Dump hediffs with overrided ticks"))
+            {
+                var sb = new StringBuilder();
+                var allTypes = GenTypes.AllTypes.ToList();
+
+                var hediffs = allTypes
+                    .Where(t => t.IsSubclassOf(typeof(Hediff)))
+                    .Where(t => TypeHasDeclaredMethod(t, "PostTick") || TypeHasDeclaredMethod(t, "Tick"))
+                    .ToList();
+                var hediffComps = allTypes
+                    .Where(t => t.IsSubclassOf(typeof(HediffComp)))
+                    .Where(t => TypeHasDeclaredMethod(t, "CompPostTick"))
+                    .ToList();
+
+                sb.AppendLine($"hediffs:");
+                foreach (var hediff in hediffs)
+                {
+                    sb.AppendLine($"  {hediff.FullName}");
+                }
+
+                sb.AppendLine($"hediffComps:");
+                foreach (var comp in hediffComps)
+                {
+                    sb.AppendLine($"  {comp.FullName}");
+                }
+
+                File.WriteAllText($"{GenFilePaths.FolderUnderSaveData("EOptimizations")}\\hediff_subclasses_with_overrides.txt", sb.ToString());
+
+                // local functions
+                bool TypeHasDeclaredMethod(Type t, string methodName) => t
+                    .GetMethods(AccessTools.all).Any(m => m.IsDeclaredMember() && m.Name.Equals(methodName));
             }
 
             l.End();

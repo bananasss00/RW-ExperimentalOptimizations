@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using HarmonyLib;
@@ -64,6 +65,12 @@ namespace ExperimentalOptimizations
         {
             if (method == null) return null;
             return new PatchInfo(method, prefix, postfix, transpiler, autoPatch);
+        }
+
+        public static void Patch(this MethodInfo method, ref List<PatchInfo> patchesList, HarmonyMethod prefix = null, HarmonyMethod postfix = null, HarmonyMethod transpiler = null, bool autoPatch = true)
+        {
+            if (method == null) return;
+            patchesList.Add(new PatchInfo(method, prefix, postfix, transpiler, autoPatch));
         }
 
         public static MethodInfo Method(this string typeColonMethodname, Type[] parameters = null, Type[] generics = null, bool warn = true)
