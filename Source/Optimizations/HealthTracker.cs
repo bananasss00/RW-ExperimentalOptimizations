@@ -65,6 +65,10 @@ namespace ExperimentalOptimizations.Optimizations
             $"SK.ShieldHediff:Tick".Method(warn: false).Patch(ref Patches, transpiler: typeof(HealthTracker).Method(nameof(Asari_SK_ShieldHediff_Tick_Transpiler)).ToHarmonyMethod(priority: 999), autoPatch: false);
             $"Adrenaline.Hediff_AdrenalineRush:UpdateSeverity".Method(warn: false).Patch(ref Patches, transpiler: typeof(HealthTracker).Method(nameof(Adrenaline_Hediff_AdrenalineRush_UpdateSeverity_Transpiler)).ToHarmonyMethod(priority: 999), autoPatch: false);
             $"Adrenaline.Hediff_AdrenalineCrash:UpdateSeverity".Method(warn: false).Patch(ref Patches, transpiler: typeof(HealthTracker).Method(nameof(Adrenaline_Hediff_AdrenalineCrash_UpdateSeverity_Transpiler)).ToHarmonyMethod(priority: 999), autoPatch: false);
+            $"rjw.Hediff_PartBaseArtifical:Tick".Method(warn: false).Patch(ref Patches, transpiler: typeof(HealthTracker).Method(nameof(rjw_Hediff_PartBaseArtifical_Tick_Transpiler)).ToHarmonyMethod(priority: 999), autoPatch: false);
+            $"rjw.Hediff_InsectEgg:Tick".Method(warn: false).Patch(ref Patches, transpiler: typeof(HealthTracker).Method(nameof(rjw_Hediff_InsectEgg_Tick_Transpiler)).ToHarmonyMethod(priority: 999), autoPatch: false);
+            $"rjw.Hediff_PartBaseNatural:Tick".Method(warn: false).Patch(ref Patches, transpiler: typeof(HealthTracker).Method(nameof(rjw_Hediff_PartBaseNatural_Tick_Transpiler)).ToHarmonyMethod(priority: 999), autoPatch: false);
+            $"rjw.Hediff_BasePregnancy:Tick".Method(warn: false).Patch(ref Patches, transpiler: typeof(HealthTracker).Method(nameof(rjw_Hediff_BasePregnancy_Tick_Transpiler)).ToHarmonyMethod(priority: 999), autoPatch: false);
 
             $"CombatExtended.HediffComp_Venom:CompPostTick".Method(warn: false).Patch(ref Patches, transpiler: typeof(HealthTracker).Method(nameof(CombatExtended_HediffComp_Venom_CompPostTick_Transpiler)).ToHarmonyMethod(priority: 999), autoPatch: false);
             $"CombatExtended.HediffComp_InfecterCE:CompPostTick".Method(warn: false).Patch(ref Patches, transpiler: typeof(HealthTracker).Method(nameof(CombatExtended_HediffComp_InfecterCE_CompPostTick_Transpiler)).ToHarmonyMethod(priority: 999), autoPatch: false);
@@ -825,10 +829,87 @@ namespace ExperimentalOptimizations.Optimizations
             return newCode;
         }
 
-        static void HediffComp_VerbGiverCompPostTick(VerbTracker verbTracker, ref float severityAdjustment)
+        static IEnumerable<CodeInstruction> rjw_Hediff_PartBaseArtifical_Tick_Transpiler(IEnumerable<CodeInstruction> instructions)
         {
-            for (int i = 0; i < 5; i++)
-                verbTracker.VerbsTick();
+            var code = instructions.ToList();
+            if (code[3].opcode != OpCodes.Ldc_I4_1)
+            {
+                Log.Warning($"rjw_Hediff_PartBaseArtifical_Tick_Transpiler failed!");
+                return code;
+            }
+
+            // original: this.ageTicks++;
+            code[3].opcode = OpCodes.Ldc_I4_5;
+            return code;
+        }
+
+        static IEnumerable<CodeInstruction> rjw_Hediff_InsectEgg_Tick_Transpiler(IEnumerable<CodeInstruction> instructions)
+        {
+            var code = instructions.ToList();
+            if (code[3].opcode != OpCodes.Ldc_I4_1)
+            {
+                Log.Warning($"rjw_Hediff_InsectEgg_Tick_Transpiler failed!");
+                return code;
+            }
+
+            // original: this.ageTicks++;
+            code[3].opcode = OpCodes.Ldc_I4_5;
+            return code;
+        }
+
+        static IEnumerable<CodeInstruction> rjw_Hediff_PartBaseNatural_Tick_Transpiler(IEnumerable<CodeInstruction> instructions)
+        {
+            var code = instructions.ToList();
+            if (code[3].opcode != OpCodes.Ldc_I4_1)
+            {
+                Log.Warning($"rjw_Hediff_PartBaseNatural_Tick_Transpiler failed!");
+                return code;
+            }
+
+            // original: this.ageTicks++;
+            code[3].opcode = OpCodes.Ldc_I4_5;
+            return code;
+        }
+
+        static IEnumerable<CodeInstruction> rjw_Hediff_BasePregnancy_Tick_Transpiler(IEnumerable<CodeInstruction> instructions)
+        {
+            var code = instructions.ToList();
+            if (code[3].opcode != OpCodes.Ldc_I4_1)
+            {
+                Log.Warning($"rjw_Hediff_BasePregnancy_Tick_Transpiler failed 1!");
+                return code;
+            }
+
+            // original: this.ageTicks++;
+            code[3].opcode = OpCodes.Ldc_I4_5;
+
+            ////
+            
+            var Hediff_BasePregnancy = AccessTools.TypeByName("rjw.Hediff_BasePregnancy");
+            var progress_per_tick = AccessTools.Field(Hediff_BasePregnancy, "progress_per_tick");
+
+            int idx = -1;
+            for (int i = 0; i < code.Count; i++)
+            {
+                if (code[i].opcode == OpCodes.Ldfld && code[i].operand == progress_per_tick && code[i + 1].opcode == OpCodes.Add)
+                {
+                    idx = i + 1;
+                }
+            }
+            
+            if (idx == -1)
+            {
+                Log.Warning($"rjw_Hediff_BasePregnancy_Tick_Transpiler failed 2!");
+                return code;
+            }
+
+            // original: this.GestationProgress += this.progress_per_tick;
+            code.InsertRange(idx, new []
+            {
+                new CodeInstruction(OpCodes.Ldc_R4, 5f),
+                new CodeInstruction(OpCodes.Mul),
+            });
+            return code;
         }
     }
 }

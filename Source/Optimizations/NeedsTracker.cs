@@ -159,6 +159,10 @@ namespace ExperimentalOptimizations.Optimizations
             {
                 "Androids.Need_Energy:NeedInterval".Method(warn: false).Patch(ref Patches, transpiler: typeof(NeedsTracker).Method(nameof(Androids_Need_Energy_NeedInterval_Transpiler)).ToHarmonyMethod(), autoPatch: false);
             }
+            // rjw
+            {
+                "rjw.Need_Sex:NeedInterval".Method(warn: false).Patch(ref Patches, transpiler: typeof(NeedsTracker).Method(nameof(rjw_Need_Sex_NeedInterval_Transpiler)).ToHarmonyMethod(), autoPatch: false);
+            }
         }
 
         public static void Patch()
@@ -425,6 +429,36 @@ namespace ExperimentalOptimizations.Optimizations
             }
 
             return newCode;
+        }
+        
+        static IEnumerable<CodeInstruction> rjw_Need_Sex_NeedInterval_Transpiler(IEnumerable<CodeInstruction> instructions)
+        {
+            var RJWSettings = AccessTools.TypeByName("rjw.RJWSettings");
+            var sexneed_decay_rate = AccessTools.Field(RJWSettings, "sexneed_decay_rate");
+
+            var code = instructions.ToList();
+            int idx = -1;
+            for (int i = 0; i < code.Count; i++)
+            {
+                if (code[i].opcode == OpCodes.Ldsfld && code[i].operand == sexneed_decay_rate)
+                {
+                    idx = i + 1;
+                }
+            }
+
+            if (idx == -1)
+            {
+                Log.Warning($"rjw_Need_Sex_NeedInterval_Transpiler failed!");
+                return code;
+            }
+
+            // original: this.CurLevel -= this.Drain;
+            code.InsertRange(idx, new []
+            {
+                new CodeInstruction(OpCodes.Ldc_R4, Pawn_NeedsTracker_Settings.Pawn_NeedsTracker_Interval / 150f),
+                new CodeInstruction(OpCodes.Mul),
+            });
+            return code;
         }
     }
 }

@@ -103,6 +103,7 @@ namespace ExperimentalOptimizations
                 "DubsBadHygiene.Need_Bladder",
                 "DubsBadHygiene.Need_Hygiene",
                 "DubsBadHygiene.Need_Thirst",
+                "rjw.Need_Sex",
                 // Hediffs
                 "Verse.Hediff_Alcohol",
                 "Verse.Hediff_ImplantWithLevel",
@@ -126,6 +127,14 @@ namespace ExperimentalOptimizations
                 "RimWorld.HediffPsychicConversion", // PsychicAwakening
                 "Adrenaline.Hediff_AdrenalineRush",
                 "Adrenaline.Hediff_Adrenaline",
+                "rjw.Cocoon",
+                "rjw.Hediff_MicroComputer",
+                "rjw.Hediff_PartBaseArtifical",
+                "rjw.Hediff_InsectEgg",
+                "rjw.Hediff_Bukkake",
+                "rjw.Hediff_SimpleBaby",
+                "rjw.Hediff_PartBaseNatural",
+                "rjw.Hediff_BasePregnancy",
                 // HediffComps
                 "Verse.HediffComp_CauseMentalState",
                 "Verse.HediffComp_ChanceToRemove",
@@ -154,6 +163,7 @@ namespace ExperimentalOptimizations
                 "SK.HeddifComp_StandOff",
                 "SK.HeddifComp_MightJoin",
                 "SK.HeddifComp_Traitor",
+                "rjw.HediffComp_FeelingBrokenSeverityReduce",
             };
 
             var allTypes = GenTypes.AllTypes.ToList();

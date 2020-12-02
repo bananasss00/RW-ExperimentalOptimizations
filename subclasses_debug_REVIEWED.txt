@@ -16,6 +16,7 @@ needs:
   + DubsBadHygiene.Need_Bladder
   + DubsBadHygiene.Need_Hygiene
   + DubsBadHygiene.Need_Thirst
+  + rjw.Need_Sex
 hediffs:
   - Verse.Hediff_Alcohol
   - Verse.Hediff_ImplantWithLevel
@@ -36,6 +37,17 @@ hediffs:
   - CONN.Hediff_FlashLightRed
   - CONN.Hediff_FlashLightGreen
   - CONN.Hediff_FlashLight
+  + RimWorld.HediffPsychicConversion
+  + rjw.Hediff_PartBaseNatural
+  + rjw.Hediff_PartBaseArtifical
+  - rjw.Hediff_Bukkake
+  - rjw.Cocoon
+  + rjw.Hediff_InsectEgg
+  - rjw.Hediff_MicroComputer
+  + rjw.Hediff_BasePregnancy
+  - rjw.Hediff_SimpleBaby
+  + Adrenaline.Hediff_AdrenalineRush
+  + Adrenaline.Hediff_Adrenaline
 hediffComps:
   - Verse.HediffComp_CauseMentalState
   + Verse.HediffComp_ChanceToRemove
@@ -62,9 +74,9 @@ hediffComps:
   + CombatExtended.HediffComp_InfecterCE 
   + CombatExtended.HediffComp_Stabilize 
   + SK.HeddifComp_StandOff 
-  - SK.HeddifComp_MightJoin 
-  + SK.HeddifComp_Traitor 
-
+  + SK.HeddifComp_MightJoin
+  + SK.HeddifComp_Traitor
+  - rjw.HediffComp_FeelingBrokenSeverityReduce
   
 ==============
 void Hediff_Pregnant:Tick()
