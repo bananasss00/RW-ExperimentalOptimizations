@@ -1,0 +1,324 @@
+hediffs:
+  - Verse.Hediff_Alcohol
+  - Verse.Hediff_ImplantWithLevel
+  - Verse.Hediff_Injury
+  - Verse.Hediff_MissingPart
+  + Verse.Hediff_Pregnant
+  +- Verse.HediffWithComps
+  + RimWorld.Hediff_HeartAttack
+  - SK.Hediff_FatalRad
+  - SK.Hediff_DeathRattle
+  + SK.Hediff_Senexium
+  - Androids.AndroidLikeHediff
+  - Androids.Hediff_LoverMentality
+  - Androids.Hediff_MechaniteHive
+  - Androids.Hediff_VanometricCell
+  - Rimatomics.Hediff_FatalRad
+  + SK.ShieldHediff 
+  - CONN.Hediff_FlashLightRed
+  - CONN.Hediff_FlashLightGreen
+  - CONN.Hediff_FlashLight
+hediffComps:
+  - Verse.HediffComp_CauseMentalState
+  + Verse.HediffComp_ChanceToRemove
+  - Verse.HediffComp_ChangeImplantLevel
+  + Verse.HediffComp_ChangeNeed
+  - Verse.HediffComp_DamageBrain
+  + Verse.HediffComp_Disappears
+  + Verse.HediffComp_Discoverable
+  - Verse.HediffComp_Disorientation
+  - Verse.HediffComp_GrowthMode
+  + Verse.HediffComp_HealPermanentWounds
+  + Verse.HediffComp_Infecter
+  - Verse.HediffComp_KillAfterDays
+  - Verse.HediffComp_Link
+  + Verse.HediffComp_SelfHeal
+  - Verse.HediffComp_SeverityFromEntropy
+  + Verse.HediffComp_SkillDecay
+  + Verse.HediffComp_TendDuration
+  + Verse.HediffComp_VerbGiver
+  - Verse.HediffComp_SeverityPerDay
+  - RimWorld.HediffComp_PsychicHarmonizer
+  - CombatExtended.HediffComp_Prometheum
+  + CombatExtended.HediffComp_Venom 
+  + CombatExtended.HediffComp_InfecterCE 
+  + CombatExtended.HediffComp_Stabilize 
+  + SK.HeddifComp_StandOff 
+  - SK.HeddifComp_MightJoin 
+  + SK.HeddifComp_Traitor 
+
+  
+==============
+void Hediff_Pregnant:Tick()
+{
+	this.ageTicks++;
+	...
+}
+void HediffWithComps::PostTick()
+{
+	base.PostTick();
+	if (this.comps != null)
+	{
+		float num = 0f;
+		for (int i = 0; i < this.comps.Count; i++)
+		{
+			this.comps[i].CompPostTick(ref num);
+		}
+		if (num != 0f)
+		{
+			this.Severity += num; // +=5?
+		}
+	}
+}
+void Hediff_HeartAttack::Tick()
+{
+	base.Tick();
+	if (this.pawn.IsHashIntervalTick((int)(5000f * this.intervalFactor)))
+	{
+		this.Severity += Rand.Range(-0.4f, 0.6f);
+	}
+}
+void SK.Hediff_Senexium::Tick()
+{
+	base.Tick();
+	this.pawn.ageTracker.AgeBiologicalTicks += (long)this.Severity - 1L;
+	Hediff_Pregnant hediff_Pregnant = this.pawn.health.hediffSet.GetFirstHediffOfDef(HediffDefOf.Pregnant, false) as Hediff_Pregnant;
+	if (hediff_Pregnant != null)
+	{
+		hediff_Pregnant.Severity += (this.Severity - 1f) / (this.pawn.RaceProps.gestationPeriodDays * 60000f);
+	}
+}
+void SK.ShieldHediff::Tick() // Asari
+{
+	base.Tick();
+	bool flag = this.cooldownTicks > 0;
+	if (flag)
+	{
+		this.cooldownTicks--;
+	}
+	else
+	{
+		this.shieldCurrent -= this.shieldDecayPerSec / 60f;
+		bool flag2 = this.shieldCurrent <= 0f;
+		if (flag2)
+		{
+			this.broken = true;
+			LocalDefOf.ShieldEmitterEnd.PlayOneShot(new TargetInfo(this.pawn.Position, this.pawn.Map, false));
+		}
+		bool flag3 = !this.removedOnBroken;
+		if (flag3)
+		{
+			this.Reset();
+		}
+	}
+}
+
+//////////////
+/// COMPS
+void HediffComp_ChanceToRemove::CompPostTick(ref float severityAdjustment)
+{
+	if (this.CompShouldRemove)
+	{
+		return;
+	}
+	if (this.currentInterval > 0)
+	{
+		this.currentInterval--;
+		return;
+	}
+	if (Rand.Chance(this.Props.chance))
+	{
+		this.removeNextInterval = true;
+		this.currentInterval = Rand.Range(0, this.Props.intervalTicks);
+		return;
+	}
+	this.currentInterval = this.Props.intervalTicks;
+}
+void HediffComp_ChangeNeed::CompPostTick(ref float severityAdjustment)
+{
+	if (this.Need != null)
+	{
+		this.Need.CurLevelPercentage += this.Props.percentPerDay / 60000f;
+	}
+}
+void HediffComp_Disappears::CompPostTick(ref float severityAdjustment)
+{
+	this.ticksToDisappear--;
+}
+void HediffComp_Discoverable::CompPostTick(ref float severityAdjustment)
+{
+	if (Find.TickManager.TicksGame % 103 == 0)
+	{
+		this.CheckDiscovered();
+	}
+}
+public override void HediffComp_HealPermanentWounds::CompPostTick(ref float severityAdjustment)
+{
+	this.ticksToHeal--;
+	if (this.ticksToHeal <= 0)
+	{
+		this.TryHealRandomPermanentWound();
+		this.ResetTicksToHeal();
+	}
+}
+public override void HediffComp_Infecter::CompPostTick(ref float severityAdjustment)
+{
+	if (this.ticksUntilInfect > 0)
+	{
+		this.ticksUntilInfect--;
+		if (this.ticksUntilInfect == 0)
+		{
+			this.CheckMakeInfection();
+		}
+	}
+}
+public override void HediffComp_SelfHeal::CompPostTick(ref float severityAdjustment)
+{
+	this.ticksSinceHeal++;
+	if (this.ticksSinceHeal > this.Props.healIntervalTicksStanding)
+	{
+		severityAdjustment -= this.Props.healAmount;
+		this.ticksSinceHeal = 0;
+	}
+}
+public override void HediffComp_SkillDecay::CompPostTick(ref float severityAdjustment)
+{
+	Pawn_SkillTracker skills = base.Pawn.skills;
+	if (skills == null)
+	{
+		return;
+	}
+	for (int i = 0; i < skills.skills.Count; i++)
+	{
+		SkillRecord skillRecord = skills.skills[i];
+		float num = this.parent.Severity * this.Props.decayPerDayPercentageLevelCurve.Evaluate((float)skillRecord.Level);
+		float num2 = skillRecord.XpRequiredForLevelUp * num / 60000f;
+		skillRecord.Learn(-num2, false);
+	}
+}
+public override void HediffComp_TendDuration::CompPostTick(ref float severityAdjustment)
+{
+	base.CompPostTick(ref severityAdjustment);
+	if (this.tendTicksLeft > 0 && !this.TProps.TendIsPermanent)
+	{
+		this.tendTicksLeft--;
+	}
+}
+public override void HediffComp_VerbGiver::CompPostTick(ref float severityAdjustment)
+{
+	base.CompPostTick(ref severityAdjustment);
+	this.verbTracker.VerbsTick();
+}
+void CombatExtended.HediffComp_Venom::CompPostTick(ref float severityAdjustment)
+{
+	base.CompPostTick(ref severityAdjustment);
+	if (this.parent.ageTicks < this._lifetime)
+	{
+		HealthUtility.AdjustSeverity(this.parent.pawn, CE_HediffDefOf.VenomBuildup, this._venomPerTick);
+	}
+}
+void CombatExtended.HediffComp_InfecterCE::CompPostTick(ref float severityAdjustment)
+{
+	if ((!this._tendedOutside || !this.IsInternal) && this.parent.TryGetComp<HediffComp_TendDuration>().IsTended)
+	{
+		this._ticksTended++;
+	}
+	if (!this._alreadyCausedInfection && this._ticksUntilInfect > 0)
+	{
+		this._ticksUntilInfect--;
+		if (this._ticksUntilInfect == 0)
+		{
+			this.CheckMakeInfection();
+		}
+	}
+}
+void CombatExtended.HediffComp_Stabilize::CompPostTick(ref float severityAdjustment)
+{
+	if (this.stabilized && this.bleedModifier < 1f && this.parent.ageTicks % 60 == 0)
+	{
+		this.bleedModifier += 0.01f;
+		if (this.bleedModifier >= 1f)
+		{
+			this.bleedModifier = 1f;
+			return;
+		}
+	}
+	else if (!this.stabilized && this.parent.pawn.Downed)
+	{
+		LessonAutoActivator.TeachOpportunity(CE_ConceptDefOf.CE_Stabilizing, this.parent.pawn, OpportunityType.Important);
+	}
+}
+void SK.HeddifComp_StandOff::CompPostTick(ref float severityAdjustment)
+{
+	if (this.t == 0)
+	{
+		this.pawnl.Add(base.Pawn);
+		base.Pawn.SetFaction(Find.FactionManager.RandomEnemyFaction(false, false, true, TechLevel.Undefined), null);
+		LordJob_VisitColony lordJob = new LordJob_VisitColony();
+		LordMaker.MakeNewLord(base.Pawn.Faction, lordJob, base.Pawn.Map, null);
+	}
+	if (this.t % 100 == 0 && (GenDate.DayTick((long)GenTicks.TicksAbs, Find.WorldGrid.LongLatOf(base.Pawn.Map.Tile).x) > 29500 && GenDate.DayTick((long)GenTicks.TicksAbs, Find.WorldGrid.LongLatOf(base.Pawn.Map.Tile).x) < 30500 && this.flag))
+	{
+		Job job = JobMaker.MakeJob(JobDefOf.Wait_Wander);
+		base.Pawn.jobs.TryTakeOrderedJob(job, JobTag.Misc);
+		base.Pawn.jobs.StopAll(false, true);
+		LordJob_DefendPoint lordJob2 = new LordJob_DefendPoint(base.Pawn.Position, null, false, true);
+		LordMaker.MakeNewLord(base.Pawn.Faction, lordJob2, base.Pawn.Map, null);
+		this.flag = false;
+	}
+	this.t++;
+}
+void SK.HeddifComp_Traitor::CompPostTick(ref float severityAdjustment)
+{
+	if (this.ticksToDisappear == 20)
+	{
+		base.Pawn.SetFaction(Find.FactionManager.RandomEnemyFaction(false, false, false, TechLevel.Undefined), null);
+		string str = "TraitorLabel".Translate();
+		string str2 = "Traitor".Translate(base.Pawn.Named("PAWN")).AdjustedFor(base.Pawn, "PAWN", true);
+		Find.LetterStack.ReceiveLetter(str, str2, LetterDefOf.ThreatBig, new TargetInfo(base.Pawn.Position, base.Pawn.Map, false), null, null, null, null);
+		this.ticksToDisappear = 0;
+		List<Pawn> list = new List<Pawn>();
+		list.Add(base.Pawn);
+		LordJob_DefendPoint lordJob = new LordJob_DefendPoint(base.Pawn.Position, null, false, true);
+		LordMaker.MakeNewLord(base.Pawn.Faction, lordJob, base.Pawn.Map, list);
+	}
+	this.ticksToDisappear--;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+		
