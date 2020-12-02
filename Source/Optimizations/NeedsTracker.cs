@@ -140,7 +140,7 @@ namespace ExperimentalOptimizations.Optimizations
             // food
             typeof(Need_Food).Method(nameof(Need_Food.NeedInterval)).Patch(ref Patches, transpiler: trans, autoPatch: false);
             // outdoors
-            typeof(Need_Outdoors).Method(nameof(Need_Outdoors.NeedInterval)).Patch(ref Patches, transpiler: typeof(NeedsTracker).Method(nameof(RimWorld_Need_Rest_NeedInterval_Transpiler)).ToHarmonyMethod(), autoPatch: false);
+            typeof(Need_Outdoors).Method(nameof(Need_Outdoors.NeedInterval)).Patch(ref Patches, transpiler: typeof(NeedsTracker).Method(nameof(RimWorld_Need_Outdoors_NeedInterval_Transpiler)).ToHarmonyMethod(), autoPatch: false);
             // rest
             typeof(Need_Rest).Method(nameof(Need_Rest.NeedInterval)).Patch(ref Patches, transpiler: trans, autoPatch: false);
             typeof(Need_Rest).Method(nameof(Need_Rest.NeedInterval)).Patch(ref Patches, transpiler: typeof(NeedsTracker).Method(nameof(RimWorld_Need_Rest_NeedInterval_Transpiler)).ToHarmonyMethod(), autoPatch: false);
