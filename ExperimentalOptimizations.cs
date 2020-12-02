@@ -43,11 +43,37 @@ namespace ExperimentalOptimizations
     {
         static ExperimentalOptimizationsMod()
         {
+            var allTypes = Assembly.GetExecutingAssembly().GetTypes();
+
             // apply fixes on StaticConstructorOnStartup
-            var fixesOnStaticConstructor = Assembly.GetExecutingAssembly().GetTypes().Where(t => t.TryGetAttribute(out FixOn fix) && fix.stage == InitStage.StaticConstructorOnStartup);
+            var fixesOnStaticConstructor = allTypes.Where(t => t.TryGetAttribute(out FixOn fix) && fix.stage == InitStage.StaticConstructorOnStartup);
             foreach (var t in fixesOnStaticConstructor)
             {
                 t.InvokeStaticMethod("Patch");
+            }
+
+            if (ExperimentalOptimizations.Optimizations == null)
+            {
+                // init optimizations
+                ExperimentalOptimizations.Optimizations = allTypes.Where(t => t.TryGetAttribute<Optimization>(out _)).ToArray();
+            }
+
+            // ModInit or StaticConstructorOnStartup faster?
+            if (ExperimentalOptimizations.Instance == null)
+            {
+                Log.Error($"Can't init settings!");
+            }
+
+            foreach (var optimization in ExperimentalOptimizations.Optimizations)
+            {
+                var opt = optimization.TryGetAttribute<Optimization>();
+                // initialize
+                optimization.InvokeStaticMethod("Init");
+                // patch enabled in settings opts.
+                if (opt.optimizationSetting.InvokeStaticMethod<bool>("Enabled"))
+                {
+                    optimization.InvokeStaticMethod("Patch");
+                }
             }
         }
     }
@@ -59,8 +85,12 @@ namespace ExperimentalOptimizations
         public override void DoSettingsWindowContents(Rect inRect) => Settings.DoSettingsWindowContents(inRect);
         public override string SettingsCategory() => "ExperimentalOptimizations";
 
+        public static ExperimentalOptimizations Instance;
+
         public ExperimentalOptimizations(ModContentPack content) : base(content)
         {
+            Instance = this;
+
             // apply fixes on ModInit
             var allTypes = Assembly.GetExecutingAssembly().GetTypes();
             var fixesOnModInit = allTypes.Where(t => t.TryGetAttribute(out FixOn fix) && fix.stage == InitStage.ModInit);
@@ -69,22 +99,14 @@ namespace ExperimentalOptimizations
                 t.InvokeStaticMethod("Patch");
             }
 
-            // init optimizations
-            Optimizations = allTypes.Where(t => t.TryGetAttribute<Optimization>(out _)).ToArray();
-
-            GetSettings<Settings>();
-            foreach (var optimization in Optimizations)
+            if (ExperimentalOptimizations.Optimizations == null)
             {
-                var opt = optimization.TryGetAttribute<Optimization>();
-                // initialize
-                optimization.InvokeStaticMethod("Init");
-                // patch enabled in settings opts.
-                if (opt.optimizationSetting.InvokeStaticMethod<bool>("Enabled"))
-                {
-                    optimization.InvokeStaticMethod("Patch");
-                }
+                // init optimizations
+                ExperimentalOptimizations.Optimizations = allTypes.Where(t => t.TryGetAttribute<Optimization>(out _)).ToArray();
             }
 
+            GetSettings<Settings>();
+            
             Log.Message($"[ExperimentalOptimizations] initialized");
         }
     }

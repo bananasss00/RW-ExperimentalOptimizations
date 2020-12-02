@@ -39,33 +39,36 @@ namespace ExperimentalOptimizations.Optimizations
             var harmonyMethod = typeof(HealthTracker).Method(nameof(HealthTick)).ToHarmonyMethod(priority: 999);
             typeof(Pawn_HealthTracker).Method(nameof(Pawn_HealthTracker.HealthTick)).Patch(ref Patches, prefix: harmonyMethod, autoPatch: false);
 
-            harmonyMethod = typeof(HealthTracker).Method(nameof(CompensateReducedImmunityTick)).ToHarmonyMethod();
+            harmonyMethod = typeof(HealthTracker).Method(nameof(CompensateReducedImmunityTick)).ToHarmonyMethod(priority: 999);
             typeof(ImmunityRecord).Method(nameof(ImmunityRecord.ImmunityTick)).Patch(ref Patches, transpiler: harmonyMethod, autoPatch: false);
 
             // Fix hediffs
-            typeof(Hediff).Method(nameof(Hediff.Tick)).Patch(ref Patches, transpiler: typeof(HealthTracker).Method(nameof(Hediff_Tick_Transpiler)).ToHarmonyMethod(), autoPatch: false);
-            typeof(Hediff_Pregnant).Method(nameof(Hediff_Pregnant.Tick)).Patch(ref Patches, transpiler: typeof(HealthTracker).Method(nameof(Hediff_Pregnant_Tick_Transpiler)).ToHarmonyMethod(), autoPatch: false);
-            typeof(HediffWithComps).Method(nameof(HediffWithComps.PostTick)).Patch(ref Patches, transpiler: typeof(HealthTracker).Method(nameof(HediffWithComps_PostTick_Transpiler)).ToHarmonyMethod(), autoPatch: false);
-            typeof(Hediff_HeartAttack).Method(nameof(Hediff_HeartAttack.Tick)).Patch(ref Patches, transpiler: typeof(HealthTracker).Method(nameof(Hediff_HeartAttack_Tick_Transpiler)).ToHarmonyMethod(), autoPatch: false);
+            typeof(Hediff).Method(nameof(Hediff.Tick)).Patch(ref Patches, transpiler: typeof(HealthTracker).Method(nameof(Hediff_Tick_Transpiler)).ToHarmonyMethod(priority: 999), autoPatch: false);
+            typeof(Hediff_Pregnant).Method(nameof(Hediff_Pregnant.Tick)).Patch(ref Patches, transpiler: typeof(HealthTracker).Method(nameof(Hediff_Pregnant_Tick_Transpiler)).ToHarmonyMethod(priority: 999), autoPatch: false);
+            
+            // ref severityAdjustment меняется в самом хедиффе, не нужно еще раз х5 в HediffWithComps.PostTick
+            // severityAdjustment используется в: HediffComp_SeverityPerDay, HediffComp_SelfHeal
+            //typeof(HediffWithComps).Method(nameof(HediffWithComps.PostTick)).Patch(ref Patches, transpiler: typeof(HealthTracker).Method(nameof(HediffWithComps_PostTick_Transpiler)).ToHarmonyMethod(priority: 999), autoPatch: false);
+            typeof(Hediff_HeartAttack).Method(nameof(Hediff_HeartAttack.Tick)).Patch(ref Patches, transpiler: typeof(HealthTracker).Method(nameof(Hediff_HeartAttack_Tick_Transpiler)).ToHarmonyMethod(priority: 999), autoPatch: false);
 
-            typeof(HediffComp_ChanceToRemove).Method(nameof(HediffComp_ChanceToRemove.CompPostTick)).Patch(ref Patches, transpiler: typeof(HealthTracker).Method(nameof(HediffComp_ChanceToRemove_CompPostTick_Transpiler)).ToHarmonyMethod(), autoPatch: false);
-            typeof(HediffComp_ChangeNeed).Method(nameof(HediffComp_ChangeNeed.CompPostTick)).Patch(ref Patches, transpiler: typeof(HealthTracker).Method(nameof(HediffComp_ChangeNeed_CompPostTick_Transpiler)).ToHarmonyMethod(), autoPatch: false);
-            typeof(HediffComp_Disappears).Method(nameof(HediffComp_Disappears.CompPostTick)).Patch(ref Patches, transpiler: typeof(HealthTracker).Method(nameof(HediffComp_Disappears_CompPostTick_Transpiler)).ToHarmonyMethod(), autoPatch: false);
-            typeof(HediffComp_HealPermanentWounds).Method(nameof(HediffComp_HealPermanentWounds.CompPostTick)).Patch(ref Patches, transpiler: typeof(HealthTracker).Method(nameof(HediffComp_HealPermanentWounds_CompPostTick_Transpiler)).ToHarmonyMethod(), autoPatch: false);
-            typeof(HediffComp_Infecter).Method(nameof(HediffComp_Infecter.CompPostTick)).Patch(ref Patches, transpiler: typeof(HealthTracker).Method(nameof(HediffComp_Infecter_CompPostTick_Transpiler)).ToHarmonyMethod(), autoPatch: false);
-            typeof(HediffComp_SelfHeal).Method(nameof(HediffComp_SelfHeal.CompPostTick)).Patch(ref Patches, transpiler: typeof(HealthTracker).Method(nameof(HediffComp_SelfHeal_CompPostTick_Transpiler)).ToHarmonyMethod(), autoPatch: false);
-            typeof(HediffComp_SkillDecay).Method(nameof(HediffComp_SkillDecay.CompPostTick)).Patch(ref Patches, transpiler: typeof(HealthTracker).Method(nameof(HediffComp_SkillDecay_CompPostTick_Transpiler)).ToHarmonyMethod(), autoPatch: false);
-            typeof(HediffComp_TendDuration).Method(nameof(HediffComp_TendDuration.CompPostTick)).Patch(ref Patches, transpiler: typeof(HealthTracker).Method(nameof(HediffComp_TendDuration_CompPostTick_Transpiler)).ToHarmonyMethod(), autoPatch: false);
-            typeof(HediffComp_VerbGiver).Method(nameof(HediffComp_VerbGiver.CompPostTick)).Patch(ref Patches, transpiler: typeof(HealthTracker).Method(nameof(HediffComp_VerbGiver_CompPostTick_Transpiler)).ToHarmonyMethod(), autoPatch: false);
+            typeof(HediffComp_ChanceToRemove).Method(nameof(HediffComp_ChanceToRemove.CompPostTick)).Patch(ref Patches, transpiler: typeof(HealthTracker).Method(nameof(HediffComp_ChanceToRemove_CompPostTick_Transpiler)).ToHarmonyMethod(priority: 999), autoPatch: false);
+            typeof(HediffComp_ChangeNeed).Method(nameof(HediffComp_ChangeNeed.CompPostTick)).Patch(ref Patches, transpiler: typeof(HealthTracker).Method(nameof(HediffComp_ChangeNeed_CompPostTick_Transpiler)).ToHarmonyMethod(priority: 999), autoPatch: false);
+            typeof(HediffComp_Disappears).Method(nameof(HediffComp_Disappears.CompPostTick)).Patch(ref Patches, transpiler: typeof(HealthTracker).Method(nameof(HediffComp_Disappears_CompPostTick_Transpiler)).ToHarmonyMethod(priority: 999), autoPatch: false);
+            typeof(HediffComp_HealPermanentWounds).Method(nameof(HediffComp_HealPermanentWounds.CompPostTick)).Patch(ref Patches, transpiler: typeof(HealthTracker).Method(nameof(HediffComp_HealPermanentWounds_CompPostTick_Transpiler)).ToHarmonyMethod(priority: 999), autoPatch: false);
+            typeof(HediffComp_Infecter).Method(nameof(HediffComp_Infecter.CompPostTick)).Patch(ref Patches, transpiler: typeof(HealthTracker).Method(nameof(HediffComp_Infecter_CompPostTick_Transpiler)).ToHarmonyMethod(priority: 999), autoPatch: false);
+            typeof(HediffComp_SelfHeal).Method(nameof(HediffComp_SelfHeal.CompPostTick)).Patch(ref Patches, transpiler: typeof(HealthTracker).Method(nameof(HediffComp_SelfHeal_CompPostTick_Transpiler)).ToHarmonyMethod(priority: 999), autoPatch: false);
+            typeof(HediffComp_SkillDecay).Method(nameof(HediffComp_SkillDecay.CompPostTick)).Patch(ref Patches, transpiler: typeof(HealthTracker).Method(nameof(HediffComp_SkillDecay_CompPostTick_Transpiler)).ToHarmonyMethod(priority: 999), autoPatch: false);
+            typeof(HediffComp_TendDuration).Method(nameof(HediffComp_TendDuration.CompPostTick)).Patch(ref Patches, transpiler: typeof(HealthTracker).Method(nameof(HediffComp_TendDuration_CompPostTick_Transpiler)).ToHarmonyMethod(priority: 999), autoPatch: false);
+            typeof(HediffComp_VerbGiver).Method(nameof(HediffComp_VerbGiver.CompPostTick)).Patch(ref Patches, transpiler: typeof(HealthTracker).Method(nameof(HediffComp_VerbGiver_CompPostTick_Transpiler)).ToHarmonyMethod(priority: 999), autoPatch: false);
 
-            $"SK.Hediff_Senexium:Tick".Method().Patch(ref Patches, transpiler: typeof(HealthTracker).Method(nameof(SK_Hediff_Senexium_Tick_Transpiler)).ToHarmonyMethod(), autoPatch: false);
-            $"SK.ShieldHediff:Tick".Method().Patch(ref Patches, transpiler: typeof(HealthTracker).Method(nameof(Asari_SK_ShieldHediff_Tick_Transpiler)).ToHarmonyMethod(), autoPatch: false);
+            $"SK.Hediff_Senexium:Tick".Method(warn: false).Patch(ref Patches, transpiler: typeof(HealthTracker).Method(nameof(SK_Hediff_Senexium_Tick_Transpiler)).ToHarmonyMethod(priority: 999), autoPatch: false);
+            $"SK.ShieldHediff:Tick".Method(warn: false).Patch(ref Patches, transpiler: typeof(HealthTracker).Method(nameof(Asari_SK_ShieldHediff_Tick_Transpiler)).ToHarmonyMethod(priority: 999), autoPatch: false);
 
-            $"CombatExtended.HediffComp_Venom:CompPostTick".Method().Patch(ref Patches, transpiler: typeof(HealthTracker).Method(nameof(CombatExtended_HediffComp_Venom_CompPostTick_Transpiler)).ToHarmonyMethod(), autoPatch: false);
-            $"CombatExtended.HediffComp_InfecterCE:CompPostTick".Method().Patch(ref Patches, transpiler: typeof(HealthTracker).Method(nameof(CombatExtended_HediffComp_InfecterCE_CompPostTick_Transpiler)).ToHarmonyMethod(), autoPatch: false);
-            $"CombatExtended.HediffComp_Stabilize:CompPostTick".Method().Patch(ref Patches, transpiler: typeof(HealthTracker).Method(nameof(CombatExtended_HediffComp_Stabilize_CompPostTick_Transpiler)).ToHarmonyMethod(), autoPatch: false);
-            $"SK.HeddifComp_StandOff:CompPostTick".Method().Patch(ref Patches, transpiler: typeof(HealthTracker).Method(nameof(SK_HeddifComp_StandOff_CompPostTick_Transpiler)).ToHarmonyMethod(), autoPatch: false);
-            $"SK.HeddifComp_Traitor:CompPostTick".Method().Patch(ref Patches, transpiler: typeof(HealthTracker).Method(nameof(SK_HeddifComp_Traitor_CompPostTick_Transpiler)).ToHarmonyMethod(), autoPatch: false);
+            $"CombatExtended.HediffComp_Venom:CompPostTick".Method(warn: false).Patch(ref Patches, transpiler: typeof(HealthTracker).Method(nameof(CombatExtended_HediffComp_Venom_CompPostTick_Transpiler)).ToHarmonyMethod(priority: 999), autoPatch: false);
+            $"CombatExtended.HediffComp_InfecterCE:CompPostTick".Method(warn: false).Patch(ref Patches, transpiler: typeof(HealthTracker).Method(nameof(CombatExtended_HediffComp_InfecterCE_CompPostTick_Transpiler)).ToHarmonyMethod(priority: 999), autoPatch: false);
+            $"CombatExtended.HediffComp_Stabilize:CompPostTick".Method(warn: false).Patch(ref Patches, transpiler: typeof(HealthTracker).Method(nameof(CombatExtended_HediffComp_Stabilize_CompPostTick_Transpiler)).ToHarmonyMethod(priority: 999), autoPatch: false);
+            $"SK.HeddifComp_StandOff:CompPostTick".Method(warn: false).Patch(ref Patches, transpiler: typeof(HealthTracker).Method(nameof(SK_HeddifComp_StandOff_CompPostTick_Transpiler)).ToHarmonyMethod(priority: 999), autoPatch: false);
+            $"SK.HeddifComp_Traitor:CompPostTick".Method(warn: false).Patch(ref Patches, transpiler: typeof(HealthTracker).Method(nameof(SK_HeddifComp_Traitor_CompPostTick_Transpiler)).ToHarmonyMethod(priority: 999), autoPatch: false);
         }
 
         public static void Patch()
@@ -472,6 +475,17 @@ namespace ExperimentalOptimizations.Optimizations
 
         static IEnumerable<CodeInstruction> HediffComp_SelfHeal_CompPostTick_Transpiler(IEnumerable<CodeInstruction> instructions)
         {
+            /*
+            public override void HediffComp_SelfHeal::CompPostTick(ref float severityAdjustment)
+		    {
+			    this.ticksSinceHeal++;
+			    if (this.ticksSinceHeal > this.Props.healIntervalTicksStanding)
+			    {
+				    severityAdjustment -= this.Props.healAmount;
+				    this.ticksSinceHeal = 0;
+			    }
+		    }
+             */
             var ticksSinceHeal = AccessTools.Field(typeof(HediffComp_SelfHeal), nameof(HediffComp_SelfHeal.ticksSinceHeal));
 
             var code = instructions.ToList();
@@ -747,8 +761,8 @@ namespace ExperimentalOptimizations.Optimizations
                 new CodeInstruction(OpCodes.Blt_S, loopStartLabel), 
             });
             code.Insert(idx, new CodeInstruction(OpCodes.Br_S, compareBelow5Label));
-
-            foreach (var c in code) Log.Warning(c.ToString());
+            
+            //foreach (var c in code) Log.Warning(c.ToString());
 
             return code;
         }

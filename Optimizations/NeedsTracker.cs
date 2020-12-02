@@ -56,7 +56,7 @@ namespace ExperimentalOptimizations.Optimizations
 
         public static void Init()
         {
-            var trans = typeof(NeedsTracker).Method(nameof(NeedsTrackerTick_Transpiler)).ToHarmonyMethod();
+            var trans = typeof(NeedsTracker).Method(nameof(NeedsTrackerTick_Transpiler)).ToHarmonyMethod(priority: 999);
 
             H.PatchInfo patch;
 
