@@ -3,6 +3,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using HarmonyLib;
+using RimWorld;
 using UnityEngine;
 using Verse;
 
@@ -33,10 +34,14 @@ namespace ExperimentalOptimizations
 
     public class Settings : ModSettings
     {
+        public static bool CheckModCompatible = true;
+
         public static void DoSettingsWindowContents(Rect rect)
         {
             var l = new Listing_Standard();
             l.Begin(rect);
+
+            l.CheckboxLabeled("CheckModCompatible".Translate(), ref CheckModCompatible);
 
             foreach (var optimization in ExperimentalOptimizations.Optimizations)
             {
@@ -44,7 +49,7 @@ namespace ExperimentalOptimizations
                 opt.optimizationSetting.InvokeStaticMethod("DoSettingsWindowContents", l);
             }
 
-            if (l.ButtonText("DEBUG: Dump hediffs with overrided ticks"))
+            if (l.ButtonText("DEBUG: Dump needs, hediffs subclasses"))
             {
                 var sb = new StringBuilder();
                 var allTypes = GenTypes.AllTypes.ToList();
@@ -57,6 +62,15 @@ namespace ExperimentalOptimizations
                     .Where(t => t.IsSubclassOf(typeof(HediffComp)))
                     .Where(t => TypeHasDeclaredMethod(t, "CompPostTick"))
                     .ToList();
+                var needs = allTypes
+                    .Where(t => t.IsSubclassOf(typeof(Need)))
+                    .ToList();
+
+                sb.AppendLine($"needs:");
+                foreach (var need in needs)
+                {
+                    sb.AppendLine($"  {need.FullName}");
+                }
 
                 sb.AppendLine($"hediffs:");
                 foreach (var hediff in hediffs)
@@ -70,7 +84,7 @@ namespace ExperimentalOptimizations
                     sb.AppendLine($"  {comp.FullName}");
                 }
 
-                File.WriteAllText($"{GenFilePaths.FolderUnderSaveData("EOptimizations")}\\hediff_subclasses_with_overrides.txt", sb.ToString());
+                File.WriteAllText($"{GenFilePaths.FolderUnderSaveData("EOptimizations")}\\subclasses_debug.txt", sb.ToString());
 
                 // local functions
                 bool TypeHasDeclaredMethod(Type t, string methodName) => t
@@ -83,6 +97,9 @@ namespace ExperimentalOptimizations
         public override void ExposeData()
         {
             base.ExposeData();
+
+            Scribe_Values.Look(ref CheckModCompatible, "CheckModCompatible", true);
+
             foreach (var optimization in ExperimentalOptimizations.Optimizations)
             {
                 var opt = optimization.TryGetAttribute<Optimization>();

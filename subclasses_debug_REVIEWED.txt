@@ -1,3 +1,21 @@
+needs:
+  + RimWorld.Need_Authority
+  + RimWorld.Need_Beauty (Need_Seeker)
+  + RimWorld.Need_Chemical
+  + RimWorld.Need_Chemical_Any
+  + RimWorld.Need_Comfort (Need_Seeker)
+  + RimWorld.Need_Food
+  + RimWorld.Need_Joy
+  + RimWorld.Need_Mood
+  + RimWorld.Need_Outdoors
+  + RimWorld.Need_Rest
+  + RimWorld.Need_RoomSize (Need_Seeker)
+  + RimWorld.Need_Seeker
+  + Skynet.Need_Energy
+  + Androids.Need_Energy
+  + DubsBadHygiene.Need_Bladder
+  + DubsBadHygiene.Need_Hygiene
+  + DubsBadHygiene.Need_Thirst
 hediffs:
   - Verse.Hediff_Alcohol
   - Verse.Hediff_ImplantWithLevel

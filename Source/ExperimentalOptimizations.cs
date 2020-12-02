@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
+using System.Text;
 using HarmonyLib;
 using RimWorld;
 using UnityEngine;
@@ -75,6 +76,121 @@ namespace ExperimentalOptimizations
                     optimization.InvokeStaticMethod("Patch");
                 }
             }
+
+            if (Settings.CheckModCompatible)
+                CheckModCompatible();
+        }
+
+        static void CheckModCompatible()
+        {
+            var supportedTypes = new[]
+            {
+                // Needs
+                "RimWorld.Need_Authority",
+                "RimWorld.Need_Beauty",
+                "RimWorld.Need_Chemical",
+                "RimWorld.Need_Chemical_Any",
+                "RimWorld.Need_Comfort",
+                "RimWorld.Need_Food",
+                "RimWorld.Need_Joy",
+                "RimWorld.Need_Mood",
+                "RimWorld.Need_Outdoors",
+                "RimWorld.Need_Rest",
+                "RimWorld.Need_RoomSize",
+                "RimWorld.Need_Seeker",
+                "Skynet.Need_Energy",
+                "Androids.Need_Energy",
+                "DubsBadHygiene.Need_Bladder",
+                "DubsBadHygiene.Need_Hygiene",
+                "DubsBadHygiene.Need_Thirst",
+                // Hediffs
+                "Verse.Hediff_Alcohol",
+                "Verse.Hediff_ImplantWithLevel",
+                "Verse.Hediff_Injury",
+                "Verse.Hediff_MissingPart",
+                "Verse.Hediff_Pregnant",
+                "Verse.HediffWithComps",
+                "RimWorld.Hediff_HeartAttack",
+                "SK.Hediff_FatalRad",
+                "SK.Hediff_DeathRattle",
+                "SK.Hediff_Senexium",
+                "Androids.AndroidLikeHediff",
+                "Androids.Hediff_LoverMentality",
+                "Androids.Hediff_MechaniteHive",
+                "Androids.Hediff_VanometricCell",
+                "Rimatomics.Hediff_FatalRad",
+                "SK.ShieldHediff",
+                "CONN.Hediff_FlashLightRed",
+                "CONN.Hediff_FlashLightGreen",
+                "CONN.Hediff_FlashLight",
+                "RimWorld.HediffPsychicConversion", // PsychicAwakening
+                "Adrenaline.Hediff_AdrenalineRush",
+                "Adrenaline.Hediff_Adrenaline",
+                // HediffComps
+                "Verse.HediffComp_CauseMentalState",
+                "Verse.HediffComp_ChanceToRemove",
+                "Verse.HediffComp_ChangeImplantLevel",
+                "Verse.HediffComp_ChangeNeed",
+                "Verse.HediffComp_DamageBrain",
+                "Verse.HediffComp_Disappears",
+                "Verse.HediffComp_Discoverable",
+                "Verse.HediffComp_Disorientation",
+                "Verse.HediffComp_GrowthMode",
+                "Verse.HediffComp_HealPermanentWounds",
+                "Verse.HediffComp_Infecter",
+                "Verse.HediffComp_KillAfterDays",
+                "Verse.HediffComp_Link",
+                "Verse.HediffComp_SelfHeal",
+                "Verse.HediffComp_SeverityFromEntropy",
+                "Verse.HediffComp_SkillDecay",
+                "Verse.HediffComp_TendDuration",
+                "Verse.HediffComp_VerbGiver",
+                "Verse.HediffComp_SeverityPerDay",
+                "RimWorld.HediffComp_PsychicHarmonizer",
+                "CombatExtended.HediffComp_Prometheum",
+                "CombatExtended.HediffComp_Venom",
+                "CombatExtended.HediffComp_InfecterCE",
+                "CombatExtended.HediffComp_Stabilize",
+                "SK.HeddifComp_StandOff",
+                "SK.HeddifComp_MightJoin",
+                "SK.HeddifComp_Traitor",
+            };
+
+            var allTypes = GenTypes.AllTypes.ToList();
+
+            var hediffs = allTypes
+                .Where(t => t.IsSubclassOf(typeof(Hediff)))
+                .Where(t => TypeHasDeclaredMethod(t, "PostTick") || TypeHasDeclaredMethod(t, "Tick"))
+                .ToList();
+            var hediffComps = allTypes
+                .Where(t => t.IsSubclassOf(typeof(HediffComp)))
+                .Where(t => TypeHasDeclaredMethod(t, "CompPostTick"))
+                .ToList();
+            var needs = allTypes
+                .Where(t => t.IsSubclassOf(typeof(Need)))
+                .ToList();
+
+            var unsupportedTypes = new StringBuilder();
+            var all = hediffs.Concat(hediffComps).Concat(needs);
+            foreach (var type in all)
+            {
+                if (!supportedTypes.Contains(type.FullName))
+                {
+                    unsupportedTypes.Append($"{type.FullName}, ");
+                }
+            }
+
+            if (unsupportedTypes.Length > 0)
+            {
+                Log.Error($"=================WARNING=================");
+                Log.Error($"THIS TYPES MAY WORK INCORRECT WITH MOD EXPERIMENTAL OPTIMIZATIONS:");
+                Log.Error(unsupportedTypes.ToString());
+                Log.Error($"=========================================");
+            }
+
+            // local functions
+            bool TypeHasDeclaredMethod(Type t, string methodName) => t
+                .GetMethods(AccessTools.all).Any(m => m.IsDeclaredMember() && m.Name.Equals(methodName));
         }
     }
 
