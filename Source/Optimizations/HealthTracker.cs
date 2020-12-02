@@ -63,6 +63,8 @@ namespace ExperimentalOptimizations.Optimizations
 
             $"SK.Hediff_Senexium:Tick".Method(warn: false).Patch(ref Patches, transpiler: typeof(HealthTracker).Method(nameof(SK_Hediff_Senexium_Tick_Transpiler)).ToHarmonyMethod(priority: 999), autoPatch: false);
             $"SK.ShieldHediff:Tick".Method(warn: false).Patch(ref Patches, transpiler: typeof(HealthTracker).Method(nameof(Asari_SK_ShieldHediff_Tick_Transpiler)).ToHarmonyMethod(priority: 999), autoPatch: false);
+            $"Adrenaline.Hediff_AdrenalineRush:UpdateSeverity".Method(warn: false).Patch(ref Patches, transpiler: typeof(HealthTracker).Method(nameof(Adrenaline_Hediff_AdrenalineRush_UpdateSeverity_Transpiler)).ToHarmonyMethod(priority: 999), autoPatch: false);
+            $"Adrenaline.Hediff_AdrenalineCrash:UpdateSeverity".Method(warn: false).Patch(ref Patches, transpiler: typeof(HealthTracker).Method(nameof(Adrenaline_Hediff_AdrenalineCrash_UpdateSeverity_Transpiler)).ToHarmonyMethod(priority: 999), autoPatch: false);
 
             $"CombatExtended.HediffComp_Venom:CompPostTick".Method(warn: false).Patch(ref Patches, transpiler: typeof(HealthTracker).Method(nameof(CombatExtended_HediffComp_Venom_CompPostTick_Transpiler)).ToHarmonyMethod(priority: 999), autoPatch: false);
             $"CombatExtended.HediffComp_InfecterCE:CompPostTick".Method(warn: false).Patch(ref Patches, transpiler: typeof(HealthTracker).Method(nameof(CombatExtended_HediffComp_InfecterCE_CompPostTick_Transpiler)).ToHarmonyMethod(priority: 999), autoPatch: false);
@@ -765,6 +767,62 @@ namespace ExperimentalOptimizations.Optimizations
             //foreach (var c in code) Log.Warning(c.ToString());
 
             return code;
+        }
+
+        static IEnumerable<CodeInstruction> Adrenaline_Hediff_AdrenalineRush_UpdateSeverity_Transpiler(IEnumerable<CodeInstruction> instructions)
+        {
+            var newCode = new List<CodeInstruction>();
+            var code = instructions.ToList();
+            int changes = 3;
+            for (int i = 0; i < code.Count; i++)
+            {
+                newCode.Add(code[i]);
+                if (code[i].opcode == OpCodes.Ldc_R4 && (float)code[i].operand == 20f && code[i + 1].opcode == OpCodes.Mul/* && code[i - 1].opcode == OpCodes.Div*/)
+                {
+                    newCode.AddRange(new []
+                    {
+                        new CodeInstruction(OpCodes.Ldc_R4, Pawn_NeedsTracker_Settings.Pawn_NeedsTracker_Interval / 150f),
+                        new CodeInstruction(OpCodes.Mul),
+                    });
+                    changes--;
+                }
+            }
+
+            if (changes != 0)
+            {
+                Log.Warning($"Adrenaline_Hediff_AdrenalineRush_UpdateSeverity_Transpiler failed!");
+                return code;
+            }
+
+            return newCode;
+        }
+
+        static IEnumerable<CodeInstruction> Adrenaline_Hediff_AdrenalineCrash_UpdateSeverity_Transpiler(IEnumerable<CodeInstruction> instructions)
+        {
+            var newCode = new List<CodeInstruction>();
+            var code = instructions.ToList();
+            int changes = 3;
+            for (int i = 0; i < code.Count; i++)
+            {
+                newCode.Add(code[i]);
+                if (code[i].opcode == OpCodes.Ldc_R4 && (float)code[i].operand == 20f && code[i + 1].opcode == OpCodes.Mul/* && code[i - 1].opcode == OpCodes.Div*/)
+                {
+                    newCode.AddRange(new []
+                    {
+                        new CodeInstruction(OpCodes.Ldc_R4, Pawn_NeedsTracker_Settings.Pawn_NeedsTracker_Interval / 150f),
+                        new CodeInstruction(OpCodes.Mul),
+                    });
+                    changes--;
+                }
+            }
+
+            if (changes != 0)
+            {
+                Log.Warning($"Adrenaline_Hediff_AdrenalineCrash_UpdateSeverity_Transpiler failed!");
+                return code;
+            }
+
+            return newCode;
         }
 
         static void HediffComp_VerbGiverCompPostTick(VerbTracker verbTracker, ref float severityAdjustment)
