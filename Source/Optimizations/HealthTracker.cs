@@ -808,7 +808,7 @@ namespace ExperimentalOptimizations.Optimizations
                 {
                     newCode.AddRange(new []
                     {
-                        new CodeInstruction(OpCodes.Ldc_R4, Pawn_NeedsTracker_Settings.Pawn_NeedsTracker_Interval / 150f),
+                        new CodeInstruction(OpCodes.Ldc_R4, 5f),
                         new CodeInstruction(OpCodes.Mul),
                     });
                     changes--;
@@ -836,7 +836,7 @@ namespace ExperimentalOptimizations.Optimizations
                 {
                     newCode.AddRange(new []
                     {
-                        new CodeInstruction(OpCodes.Ldc_R4, Pawn_NeedsTracker_Settings.Pawn_NeedsTracker_Interval / 150f),
+                        new CodeInstruction(OpCodes.Ldc_R4, 5f),
                         new CodeInstruction(OpCodes.Mul),
                     });
                     changes--;
