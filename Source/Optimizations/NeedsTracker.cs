@@ -275,7 +275,8 @@ namespace ExperimentalOptimizations.Optimizations
             }
 
             // original: this.intervalsUntilObserve--;
-            code[idx].opcode = OpCodes.Ldc_I4_5;
+            code[idx] = new CodeInstruction(OpCodes.Ldc_R4, Pawn_NeedsTracker_Settings.Pawn_NeedsTracker_Interval / 150f);
+            code.Insert(idx + 1, new CodeInstruction(OpCodes.Conv_I4));
             return code;
         }
 
