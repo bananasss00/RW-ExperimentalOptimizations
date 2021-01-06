@@ -71,12 +71,14 @@ namespace ExperimentalOptimizations.Optimizations
             $"rjw.Hediff_InsectEgg:Tick".Method(warn: false).Patch(ref Patches, transpiler: ht.Method(nameof(rjw_Hediff_InsectEgg_Tick_Transpiler)).ToHarmonyMethod(priority: 999), autoPatch: false);
             $"rjw.Hediff_PartBaseNatural:Tick".Method(warn: false).Patch(ref Patches, transpiler: ht.Method(nameof(rjw_Hediff_PartBaseNatural_Tick_Transpiler)).ToHarmonyMethod(priority: 999), autoPatch: false);
             $"rjw.Hediff_BasePregnancy:Tick".Method(warn: false).Patch(ref Patches, transpiler: ht.Method(nameof(rjw_Hediff_BasePregnancy_Tick_Transpiler)).ToHarmonyMethod(priority: 999), autoPatch: false);
+            $"CultOfCthulhu.Hediff_Transmogrified:Tick".Method(warn: false).Patch(ref Patches, transpiler: ht.Method(nameof(CultOfCthulhu_Hediff_Transmogrified_Tick_Transpiler)).ToHarmonyMethod(priority: 999), autoPatch: false);
 
             $"CombatExtended.HediffComp_Venom:CompPostTick".Method(warn: false).Patch(ref Patches, transpiler: ht.Method(nameof(CombatExtended_HediffComp_Venom_CompPostTick_Transpiler)).ToHarmonyMethod(priority: 999), autoPatch: false);
             $"CombatExtended.HediffComp_InfecterCE:CompPostTick".Method(warn: false).Patch(ref Patches, transpiler: ht.Method(nameof(CombatExtended_HediffComp_InfecterCE_CompPostTick_Transpiler)).ToHarmonyMethod(priority: 999), autoPatch: false);
             $"CombatExtended.HediffComp_Stabilize:CompPostTick".Method(warn: false).Patch(ref Patches, transpiler: ht.Method(nameof(CombatExtended_HediffComp_Stabilize_CompPostTick_Transpiler)).ToHarmonyMethod(priority: 999), autoPatch: false);
             $"SK.HeddifComp_StandOff:CompPostTick".Method(warn: false).Patch(ref Patches, transpiler: ht.Method(nameof(SK_HeddifComp_StandOff_CompPostTick_Transpiler)).ToHarmonyMethod(priority: 999), autoPatch: false);
             $"SK.HeddifComp_Traitor:CompPostTick".Method(warn: false).Patch(ref Patches, transpiler: ht.Method(nameof(SK_HeddifComp_Traitor_CompPostTick_Transpiler)).ToHarmonyMethod(priority: 999), autoPatch: false);
+            $"JecsTools.HediffCompDamageOverTime:CompPostTick".Method(warn: false).Patch(ref Patches, transpiler: ht.Method(nameof(JecsTools_HediffCompDamageOverTime_CompPostTick_Transpiler)).ToHarmonyMethod(priority: 999), autoPatch: false);
         }
 
         public static void Patch()
@@ -397,6 +399,21 @@ namespace ExperimentalOptimizations.Optimizations
             return new TranspilerFactory("rjw.Hediff_BasePregnancy.Tick")
                 .Replace("ldarg.0;ldfld Verse.Hediff:ageTicks;ldc.i4.1;add", "ldarg.0;ldfld Verse.Hediff:ageTicks;ldc.i4.5;add")
                 .Replace("ldfld rjw.Hediff_BasePregnancy:progress_per_tick;add", "ldfld rjw.Hediff_BasePregnancy:progress_per_tick;ldc.r4 5;mul;add")
+                .Transpiler(ilGen, instructions);
+        }
+
+        static IEnumerable<CodeInstruction> CultOfCthulhu_Hediff_Transmogrified_Tick_Transpiler(IEnumerable<CodeInstruction> instructions, ILGenerator ilGen)
+        {
+            return new TranspilerFactory("CultOfCthulhu.Hediff_Transmogrified.Tick")
+                .Replace("ldc.r4 0.01;add", "ldc.r4 0.05;add")
+                .Replace("ldc.r4 0.01;sub", "ldc.r4 0.05;sub")
+                .Transpiler(ilGen, instructions);
+        }
+
+        static IEnumerable<CodeInstruction> JecsTools_HediffCompDamageOverTime_CompPostTick_Transpiler(IEnumerable<CodeInstruction> instructions, ILGenerator ilGen)
+        {
+            return new TranspilerFactory("JecsTools.HediffCompDamageOverTime.CompPostTick")
+                .Replace("ldc.i4.1;sub", "ldc.i4.5;sub")
                 .Transpiler(ilGen, instructions);
         }
     }

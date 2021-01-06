@@ -166,6 +166,10 @@ namespace ExperimentalOptimizations.Optimizations
             {
                 "rjw.Need_Sex:NeedInterval".Method(warn: false).Patch(ref Patches, transpiler: nt.Method(nameof(rjw_Need_Sex_NeedInterval_Transpiler)).ToHarmonyMethod(), autoPatch: false);
             }
+            // CultOfCthulhu
+            {
+                "CultOfCthulhu.Need_CultMindedness:NeedInterval".Method(warn: false).Patch(ref Patches, transpiler: nt.Method(nameof(CultOfCthulhu_Need_CultMindedness_NeedInterval_Transpiler)).ToHarmonyMethod(), autoPatch: false);
+            }
         }
 
         public static void Patch()
@@ -265,6 +269,15 @@ namespace ExperimentalOptimizations.Optimizations
         {
             return new TranspilerFactory("rjw.Need_Sex.NeedInterval")
                 .Search("ldsfld rjw.RJWSettings:sexneed_decay_rate;mul")
+                .Insert($"ldc.r4 {CompensateMult};mul")
+                .Transpiler(ilGen, instructions);
+        }
+
+        static IEnumerable<CodeInstruction> CultOfCthulhu_Need_CultMindedness_NeedInterval_Transpiler(IEnumerable<CodeInstruction> instructions, ILGenerator ilGen)
+        {
+            return new TranspilerFactory("CultOfCthulhu.Need_CultMindedness.NeedInterval")
+                .Replace("ldc.i4 150", $"ldc.i4 {Pawn_NeedsTracker_Settings.Pawn_NeedsTracker_Interval}")
+                .Search("ldc.r4 0.00005")
                 .Insert($"ldc.r4 {CompensateMult};mul")
                 .Transpiler(ilGen, instructions);
         }

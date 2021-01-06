@@ -104,6 +104,8 @@ namespace ExperimentalOptimizations
                 "DubsBadHygiene.Need_Hygiene",
                 "DubsBadHygiene.Need_Thirst",
                 "rjw.Need_Sex",
+                "CultOfCthulhu.Need_Sanity",
+                "CultOfCthulhu.Need_CultMindedness",
                 // Hediffs
                 "Verse.Hediff_Alcohol",
                 "Verse.Hediff_ImplantWithLevel",
@@ -135,6 +137,7 @@ namespace ExperimentalOptimizations
                 "rjw.Hediff_SimpleBaby",
                 "rjw.Hediff_PartBaseNatural",
                 "rjw.Hediff_BasePregnancy",
+                "CultOfCthulhu.Hediff_Transmogrified",
                 // HediffComps
                 "Verse.HediffComp_CauseMentalState",
                 "Verse.HediffComp_ChanceToRemove",
@@ -164,6 +167,10 @@ namespace ExperimentalOptimizations
                 "SK.HeddifComp_MightJoin",
                 "SK.HeddifComp_Traitor",
                 "rjw.HediffComp_FeelingBrokenSeverityReduce",
+                "JecsTools.HediffCompDamageOverTime",
+                "CultOfCthulhu.HediffComp_SanityLoss",
+                "CosmicHorror.HediffWithComps_SanityLoss",
+                "CosmicHorror.HediffWithComps_GutWorms",
             };
 
             var allTypes = GenTypes.AllTypes.ToList();
