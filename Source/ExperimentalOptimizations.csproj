@@ -58,6 +58,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ExperimentalOptimizations.cs" />
+    <Compile Include="Fix\ColonyLeadership.cs" />
     <Compile Include="Fix\AlienRace.cs" />
     <Compile Include="Fix\Bubbles.cs" />
     <Compile Include="Fix\Vanilla.cs" />

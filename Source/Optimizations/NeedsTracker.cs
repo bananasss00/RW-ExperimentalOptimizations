@@ -119,6 +119,7 @@ namespace ExperimentalOptimizations.Optimizations
     {
         private static List<H.PatchInfo> Patches = new List<H.PatchInfo>();
         private static float CompensateMult => Pawn_NeedsTracker_Settings.Pawn_NeedsTracker_Interval / 150f;
+        private static int CompensateAdd => (int)Math.Round(Pawn_NeedsTracker_Settings.Pawn_NeedsTracker_Interval / 150f);
 
         public static void Init()
         {
@@ -169,6 +170,10 @@ namespace ExperimentalOptimizations.Optimizations
             // CultOfCthulhu
             {
                 "CultOfCthulhu.Need_CultMindedness:NeedInterval".Method(warn: false).Patch(ref Patches, transpiler: nt.Method(nameof(CultOfCthulhu_Need_CultMindedness_NeedInterval_Transpiler)).ToHarmonyMethod(), autoPatch: false);
+            }
+            // Nandonalt_ColonyLeadership
+            {
+                "Nandonalt_ColonyLeadership.Need_LeaderLevel:NeedInterval".Method(warn: false).Patch(ref Patches, transpiler: nt.Method(nameof(Nandonalt_ColonyLeadership_Need_LeaderLevel_NeedInterval_Transpiler)).ToHarmonyMethod(), autoPatch: false);
             }
         }
 
@@ -279,6 +284,13 @@ namespace ExperimentalOptimizations.Optimizations
                 .Replace("ldc.i4 150", $"ldc.i4 {Pawn_NeedsTracker_Settings.Pawn_NeedsTracker_Interval}")
                 .Search("ldc.r4 0.00005")
                 .Insert($"ldc.r4 {CompensateMult};mul")
+                .Transpiler(ilGen, instructions);
+        }
+
+        static IEnumerable<CodeInstruction> Nandonalt_ColonyLeadership_Need_LeaderLevel_NeedInterval_Transpiler(IEnumerable<CodeInstruction> instructions, ILGenerator ilGen)
+        {
+            return new TranspilerFactory("Nandonalt_ColonyLeadership.Need_LeaderLevel.NeedInterval")
+                .Replace("ldfld Nandonalt_ColonyLeadership.Need_LeaderLevel:ticks;ldc.i4.1;add", $"ldfld Nandonalt_ColonyLeadership.Need_LeaderLevel:ticks;ldc.i4 {CompensateAdd};add")
                 .Transpiler(ilGen, instructions);
         }
     }

@@ -72,7 +72,20 @@ namespace ExperimentalOptimizations.Optimizations
             $"rjw.Hediff_PartBaseNatural:Tick".Method(warn: false).Patch(ref Patches, transpiler: ht.Method(nameof(rjw_Hediff_PartBaseNatural_Tick_Transpiler)).ToHarmonyMethod(priority: 999), autoPatch: false);
             $"rjw.Hediff_BasePregnancy:Tick".Method(warn: false).Patch(ref Patches, transpiler: ht.Method(nameof(rjw_Hediff_BasePregnancy_Tick_Transpiler)).ToHarmonyMethod(priority: 999), autoPatch: false);
             $"CultOfCthulhu.Hediff_Transmogrified:Tick".Method(warn: false).Patch(ref Patches, transpiler: ht.Method(nameof(CultOfCthulhu_Hediff_Transmogrified_Tick_Transpiler)).ToHarmonyMethod(priority: 999), autoPatch: false);
-
+            $"Nandonalt_ColonyLeadership.HediffLeader:Tick".Method(warn: false).Patch(ref Patches, transpiler: ht.Method(nameof(Nandonalt_ColonyLeadership_HediffLeader_Tick_Transpiler)).ToHarmonyMethod(priority: 999), autoPatch: false);
+            $"Nandonalt_ColonyLeadership.HediffLeaderAura:Tick".Method(warn: false).Patch(ref Patches, transpiler: ht.Method(nameof(Nandonalt_ColonyLeadership_HediffLeaderAura_Tick_Transpiler)).ToHarmonyMethod(priority: 999), autoPatch: false);
+            // AlphaAnimals
+            {
+                $"AlphaBehavioursAndEvents.Hediff_AcidBuildup:Tick".Method(warn: false).Patch(ref Patches,
+                    transpiler: ht.Method(nameof(AlphaBehavioursAndEvents_Hediff_AcidBuildup_Tick_Transpiler))
+                        .ToHarmonyMethod(priority: 999), autoPatch: false);
+                $"AlphaBehavioursAndEvents.Hediff_Crushing:Tick".Method(warn: false).Patch(ref Patches,
+                    transpiler: ht.Method(nameof(AlphaBehavioursAndEvents_Hediff_Crushing_Tick_Transpiler))
+                        .ToHarmonyMethod(priority: 999), autoPatch: false);
+                $"AlphaBehavioursAndEvents.HediffComp_ExplodeOnDowned:CompPostTick".Method(warn: false).Patch(ref Patches,
+                    transpiler: ht.Method(nameof(AlphaBehavioursAndEvents_HediffComp_ExplodeOnDowned_CompPostTick_Transpiler))
+                        .ToHarmonyMethod(priority: 999), autoPatch: false);
+            }
             $"CombatExtended.HediffComp_Venom:CompPostTick".Method(warn: false).Patch(ref Patches, transpiler: ht.Method(nameof(CombatExtended_HediffComp_Venom_CompPostTick_Transpiler)).ToHarmonyMethod(priority: 999), autoPatch: false);
             $"CombatExtended.HediffComp_InfecterCE:CompPostTick".Method(warn: false).Patch(ref Patches, transpiler: ht.Method(nameof(CombatExtended_HediffComp_InfecterCE_CompPostTick_Transpiler)).ToHarmonyMethod(priority: 999), autoPatch: false);
             $"CombatExtended.HediffComp_Stabilize:CompPostTick".Method(warn: false).Patch(ref Patches, transpiler: ht.Method(nameof(CombatExtended_HediffComp_Stabilize_CompPostTick_Transpiler)).ToHarmonyMethod(priority: 999), autoPatch: false);
@@ -414,6 +427,68 @@ namespace ExperimentalOptimizations.Optimizations
         {
             return new TranspilerFactory("JecsTools.HediffCompDamageOverTime.CompPostTick")
                 .Replace("ldc.i4.1;sub", "ldc.i4.5;sub")
+                .Transpiler(ilGen, instructions);
+        }
+
+        static IEnumerable<CodeInstruction> Nandonalt_ColonyLeadership_HediffLeader_Tick_Transpiler(IEnumerable<CodeInstruction> instructions, ILGenerator ilGen)
+        {
+            IEnumerable<CodeInstruction> transpiler()
+            {
+                bool counter = false, condition = false;
+                foreach (var ci in instructions)
+                {
+                    if (!counter && ci.opcode == OpCodes.Ldc_I4_1)
+                    {
+                        yield return new CodeInstruction(OpCodes.Ldc_I4_5);
+                        counter = true;
+                    }
+                    else if (!condition && ci.opcode == OpCodes.Brtrue_S) // if ticksLeader == 0 goto ...
+                    {
+                        yield return new CodeInstruction(OpCodes.Ldc_I4_1);
+                        yield return new CodeInstruction(OpCodes.Bge_S, ci.operand); // if ticksLeader >= 1 goto ...
+                        condition = true;
+                    }
+                    else yield return ci;
+                }
+            }
+
+            var result = transpiler();
+#if DEBUG
+            var dir = GenFilePaths.FolderUnderSaveData("TranspilerDebug");
+            var code = instructions.ToList();
+            File.WriteAllLines($"{dir}\\Nandonalt_ColonyLeadership_HediffLeader_Tick_Transpiler.before.txt", code.Select(x => x.ToString()));
+            code = result.ToList();
+            File.WriteAllLines($"{dir}\\Nandonalt_ColonyLeadership_HediffLeader_Tick_Transpiler.after.txt", code.Select(x => x.ToString()));
+#endif
+            return result;
+        }
+
+        static IEnumerable<CodeInstruction> Nandonalt_ColonyLeadership_HediffLeaderAura_Tick_Transpiler(IEnumerable<CodeInstruction> instructions, ILGenerator ilGen)
+        {
+            return new TranspilerFactory("Nandonalt_ColonyLeadership.HediffLeaderAura.Tick")
+                .Replace("ldc.i4.1;add", "ldc.i4.5;add")
+                .Transpiler(ilGen, instructions);
+        }
+
+        static IEnumerable<CodeInstruction> AlphaBehavioursAndEvents_Hediff_AcidBuildup_Tick_Transpiler(IEnumerable<CodeInstruction> instructions, ILGenerator ilGen)
+        {
+            return new TranspilerFactory("AlphaBehavioursAndEvents.Hediff_AcidBuildup.Tick")
+                .Replace("ldc.i4.1;add", "ldc.i4.5;add")
+                .Transpiler(ilGen, instructions);
+        }
+
+        static IEnumerable<CodeInstruction> AlphaBehavioursAndEvents_Hediff_Crushing_Tick_Transpiler(IEnumerable<CodeInstruction> instructions, ILGenerator ilGen)
+        {
+            return new TranspilerFactory("AlphaBehavioursAndEvents.Hediff_Crushing.Tick")
+                .Replace("ldc.i4.1;add", "ldc.i4.5;add")
+                .Replace("ldc.i4.1;add", "ldc.i4.5;add")
+                .Transpiler(ilGen, instructions);
+        }
+
+        static IEnumerable<CodeInstruction> AlphaBehavioursAndEvents_HediffComp_ExplodeOnDowned_CompPostTick_Transpiler(IEnumerable<CodeInstruction> instructions, ILGenerator ilGen)
+        {
+            return new TranspilerFactory("AlphaBehavioursAndEvents.HediffComp_ExplodeOnDowned.CompPostTick")
+                .Replace("ldc.i4.1;add", "ldc.i4.5;add")
                 .Transpiler(ilGen, instructions);
         }
     }

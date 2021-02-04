@@ -106,6 +106,7 @@ namespace ExperimentalOptimizations
                 "rjw.Need_Sex",
                 "CultOfCthulhu.Need_Sanity",
                 "CultOfCthulhu.Need_CultMindedness",
+                "Nandonalt_ColonyLeadership.Need_LeaderLevel",
                 // Hediffs
                 "Verse.Hediff_Alcohol",
                 "Verse.Hediff_ImplantWithLevel",
@@ -138,6 +139,11 @@ namespace ExperimentalOptimizations
                 "rjw.Hediff_PartBaseNatural",
                 "rjw.Hediff_BasePregnancy",
                 "CultOfCthulhu.Hediff_Transmogrified",
+                "Nandonalt_ColonyLeadership.HediffLeader",
+                "Nandonalt_ColonyLeadership.HediffLeaderAura",
+                "AlphaBehavioursAndEvents.Hediff_AcidBuildup",
+                "AlphaBehavioursAndEvents.Hediff_Crushing",
+                "AlphaBehavioursAndEvents.Hediff_Stalking", // not changed
                 // HediffComps
                 "Verse.HediffComp_CauseMentalState",
                 "Verse.HediffComp_ChanceToRemove",
@@ -171,6 +177,8 @@ namespace ExperimentalOptimizations
                 "CultOfCthulhu.HediffComp_SanityLoss",
                 "CosmicHorror.HediffWithComps_SanityLoss",
                 "CosmicHorror.HediffWithComps_GutWorms",
+                "AlphaBehavioursAndEvents.HediffComp_ExplodeOnDowned",
+                "AlphaBehavioursAndEvents.HediffComp_Mime", // not changed
             };
 
             var allTypes = GenTypes.AllTypes.ToList();
