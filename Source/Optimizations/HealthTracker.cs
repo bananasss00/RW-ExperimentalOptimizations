@@ -65,6 +65,8 @@ namespace ExperimentalOptimizations.Optimizations
 
             $"SK.Hediff_Senexium:Tick".Method(warn: false).Patch(ref Patches, transpiler: ht.Method(nameof(SK_Hediff_Senexium_Tick_Transpiler)).ToHarmonyMethod(priority: 999), autoPatch: false);
             $"SK.ShieldHediff:Tick".Method(warn: false).Patch(ref Patches, transpiler: ht.Method(nameof(Asari_SK_ShieldHediff_Tick_Transpiler)).ToHarmonyMethod(priority: 999), autoPatch: false);
+            $"SkyMind.HediffLeader:Tick".Method(warn: false).Patch(ref Patches, transpiler: ht.Method(nameof(SkyMind_HediffLeader_Tick_Transpiler)).ToHarmonyMethod(priority: 999), autoPatch: false);
+            $"SkyMind.HediffLeaderAura:Tick".Method(warn: false).Patch(ref Patches, transpiler: ht.Method(nameof(SkyMind_HediffLeaderAura_Tick_Transpiler)).ToHarmonyMethod(priority: 999), autoPatch: false);
             $"Adrenaline.Hediff_AdrenalineRush:UpdateSeverity".Method(warn: false).Patch(ref Patches, transpiler: ht.Method(nameof(Adrenaline_Hediff_AdrenalineRush_UpdateSeverity_Transpiler)).ToHarmonyMethod(priority: 999), autoPatch: false);
             $"Adrenaline.Hediff_AdrenalineCrash:UpdateSeverity".Method(warn: false).Patch(ref Patches, transpiler: ht.Method(nameof(Adrenaline_Hediff_AdrenalineCrash_UpdateSeverity_Transpiler)).ToHarmonyMethod(priority: 999), autoPatch: false);
             $"rjw.Hediff_PartBaseArtifical:Tick".Method(warn: false).Patch(ref Patches, transpiler: ht.Method(nameof(rjw_Hediff_PartBaseArtifical_Tick_Transpiler)).ToHarmonyMethod(priority: 999), autoPatch: false);
@@ -488,6 +490,20 @@ namespace ExperimentalOptimizations.Optimizations
         static IEnumerable<CodeInstruction> AlphaBehavioursAndEvents_HediffComp_ExplodeOnDowned_CompPostTick_Transpiler(IEnumerable<CodeInstruction> instructions, ILGenerator ilGen)
         {
             return new TranspilerFactory("AlphaBehavioursAndEvents.HediffComp_ExplodeOnDowned.CompPostTick")
+                .Replace("ldc.i4.1;add", "ldc.i4.5;add")
+                .Transpiler(ilGen, instructions);
+        }
+
+        static IEnumerable<CodeInstruction> SkyMind_HediffLeader_Tick_Transpiler(IEnumerable<CodeInstruction> instructions, ILGenerator ilGen)
+        {
+            return new TranspilerFactory("SkyMind.HediffLeader.Tick")
+                .Replace("ldc.i4.1;add", "ldc.i4.5;add")
+                .Transpiler(ilGen, instructions);
+        }
+
+        static IEnumerable<CodeInstruction> SkyMind_HediffLeaderAura_Tick_Transpiler(IEnumerable<CodeInstruction> instructions, ILGenerator ilGen)
+        {
+            return new TranspilerFactory("SkyMind.HediffLeaderAura.Tick")
                 .Replace("ldc.i4.1;add", "ldc.i4.5;add")
                 .Transpiler(ilGen, instructions);
         }

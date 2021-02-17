@@ -118,6 +118,8 @@ namespace ExperimentalOptimizations
                 "SK.Hediff_FatalRad",
                 "SK.Hediff_DeathRattle",
                 "SK.Hediff_Senexium",
+                "SkyMind.HediffLeader",
+                "SkyMind.HediffLeaderAura",
                 "Androids.AndroidLikeHediff",
                 "Androids.Hediff_LoverMentality",
                 "Androids.Hediff_MechaniteHive",
