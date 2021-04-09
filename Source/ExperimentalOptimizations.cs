@@ -146,6 +146,8 @@ namespace ExperimentalOptimizations
                 "AlphaBehavioursAndEvents.Hediff_AcidBuildup",
                 "AlphaBehavioursAndEvents.Hediff_Crushing",
                 "AlphaBehavioursAndEvents.Hediff_Stalking", // not changed
+                "SimpleSlavery.Hediff_EmancipateFix",
+                "SimpleSlavery.Hediff_Enslaved",
                 // HediffComps
                 "Verse.HediffComp_CauseMentalState",
                 "Verse.HediffComp_ChanceToRemove",
